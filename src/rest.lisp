@@ -1,5 +1,4 @@
-;;; Copyright © 2014 Grim Schjetne <gs@schjetne.se>
-;; Copyright (C) 2014 Grim Schjetne
+;; Copyright © 2014 Grim Schjetne <gs@schjetne.se>
 
 ;; This file is part of CL-Arango.
 
@@ -17,12 +16,7 @@
 ;; License along with Foobar.  If not, see
 ;; <http://www.gnu.org/licenses/>.
 
-
-
 (in-package #:cl-arango)
-
-(defun t-or-f (x)
-  (if x "true" "false"))
 
 ;; Databases
 
@@ -40,7 +34,7 @@
 
 (def-arango-fun list-databases ()
   :get
-  (:documentation "Retrieves the list of all existing databases".)
+  (:documentation "Retrieves the list of all existing databases.")
   (:uri "database"))
 
 (def-arango-fun create-database (name &optional users)
@@ -67,7 +61,7 @@
 (def-arango-fun create-document (document collection &optional
                                           create-collection wait-for-sync)
   :post
-  (:documentation "Creates a new document in the collection named collection.")
+  (:documentation "Creates a new document in the collection named COLLECTION.")
   (:uri "document")
   (:query (list "collection" collection
                 "createCollection" create-collection
@@ -115,7 +109,7 @@
   :get
   (:documentation
    "Returns a list of all URI for all documents from the collection
-   identified by collection.")
+   identified by COLLECTION.")
   (:uri "document")
   (:query `("collection" ,collection)))
 
@@ -130,14 +124,14 @@
   :get
   (:documentation
    "Returns a list of all URI for all edges from the collection
-   identified by collection.")
+   identified by COLLECTION.")
   (:uri "edge")
   (:query `("collection" ,collection)))
 
 (def-arango-fun create-edge (document collection from-handle to-handle
                                       &optional create-collection wait-for-sync)
   :post
-  (:documentation "Creates a new edge document in the collection named collection")
+  (:documentation "Creates a new edge document in the collection named COLLECTION")
   (:uri "edge")
   (:query (list "collection" collection
                 "from" from-handle
@@ -176,7 +170,7 @@
                   (if policy `("policy" ,policy)))))
 
 ;; This function always fails. Custom response handler is needed
-(def-arango-fun read-document-header (handle &optional rev)
+(def-arango-fun read-edge-header (handle &optional rev)
   :head
   (:documentation
    "Like READ-EDGE, but only returns the header fields and not the body.")
@@ -208,7 +202,7 @@
 
 (def-arango-fun simple-by-example (example collection &optional skip limit)
   :put
-  (:documentation "Finds all documents matching a given example.")
+  (:documentation "Finds all documents matching the example given by EXAMPLE.")
   (:uri "simple" "by-example")
   (:content (encode-json-alist `(("collection" . ,collection)
                                  ("example" . ,example)
@@ -218,7 +212,7 @@
 
 (def-arango-fun simple-first-example (example collection)
   :put
-  (:documentation "Finds all documents matching a given example.")
+  (:documentation "Finds all documents matching the example given by EXAMPLE.")
   (:uri "simple" "first-example")
   (:content (encode-json-alist `(("collection" . ,collection)
                                  ("example" . ,example)) stream)))
@@ -226,7 +220,7 @@
 (def-arango-fun simple-by-example-hash (example collection index
                                                 &optional skip limit)
   :put
-  (:documentation "Finds all documents matching a given example.")
+  (:documentation "Finds all documents matching the example given by EXAMPLE.")
   (:uri "simple" "by-example")
   (:content (encode-json-alist `(("index" . ,index)
                                  ("collection" . ,collection)
@@ -238,7 +232,7 @@
 (def-arango-fun simple-by-example-skiplist (example collection index
                                                     &optional skip limit)
   :put
-  (:documentation "Finds all documents matching a given example.")
+  (:documentation "Finds all documents matching the example given by EXAMPLE.")
   (:uri "simple" "by-example-skiplist")
   (:content (encode-json-alist `(("index" . ,index)
                                  ("collection" . ,collection)
@@ -250,7 +244,7 @@
 (def-arango-fun simple-by-example-bitarray (example collection index
                                                     &optional skip limit)
   :put
-  (:documentation "Finds all documents matching a given example.")
+  (:documentation "Finds all documents matching the example given by EXAMPLE.")
   (:uri "simple" "by-example-bitarray")
   (:content (encode-json-alist `(("index" . ,index)
                                  ("collection" . ,collection)
@@ -262,7 +256,7 @@
 (def-arango-fun simple-by-condition-bitarray (condition collection index
                                                         &optional skip limit)
   :put
-  (:documentation "Finds all documents matching a given example.")
+  (:documentation "Finds all documents matching the example given by EXAMPLE.")
   (:uri "simple" "by-condition-bitarray")
   (:content (encode-json-alist `(("index" . ,index)
                                  ("condition" . ,condition)
@@ -347,7 +341,8 @@
 (def-arango-fun simple-remove-by-example (example collection
                                                   &optional wait-for-sync limit)
   :put
-  (:documentation "Finds and removes all documents matching EXAMPLE.")
+  (:documentation
+   "Finds and removes all documents matching the example given by EXAMPLE.")
   (:uri "simple" "remove-by-example")
   (:content (encode-json-alist `(("collection" . ,collection)
                                  ("example" . ,example)

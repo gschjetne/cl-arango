@@ -1,4 +1,4 @@
-;; Copyright (C) 2014 Grim Schjetne
+;; Copyright © 2014 Grim Schjetne <gs@schjetne.se>
 
 ;; This file is part of CL-Arango.
 
@@ -67,6 +67,8 @@
            #:simple-update-by-example
            #:simple-first
            #:simple-last
+
+           #:with-arango-database
            
 	   ;; Vars
 	   #:*arango-host*

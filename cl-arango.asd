@@ -1,4 +1,4 @@
-;; Copyright (C) 2014 Grim Schjetne
+;; Copyright © 2014 Grim Schjetne <gs@schjetne.se>
 
 ;; This file is part of CL-Arango.
 
@@ -15,8 +15,6 @@
 ;; You should have received a copy of the GNU Lesser General Public
 ;; License along with Foobar.  If not, see
 ;; <http://www.gnu.org/licenses/>.
-
-
 
 (defpackage :cl-arango-system (:use :cl :asdf))
 (in-package :cl-arango-system)
@@ -36,5 +34,5 @@
             :serial t
             :components
             ((:file "package")
-             (:file "requests" :depends-on ("conditions"))
+             (:file "requests")
              (:file "rest" :depends-on ("requests"))))))
