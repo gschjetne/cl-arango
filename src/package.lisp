@@ -36,6 +36,19 @@
            #:read-document
            #:create-document
            #:replace-document
+           #:patch-document
+           #:delete-document
+           #:read-document-header
+           #:read-all-documents
+
+           #:read-edge
+           #:read-all-edges
+           #:create-edge
+           #:patch-edge
+           #:replace-edge
+           #:delete-edge
+           #:read-document-header
+           #:read-in-or-outbound-edges
            
 	   ;; Vars
 	   #:*arango-host*

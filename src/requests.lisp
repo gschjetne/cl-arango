@@ -43,7 +43,7 @@
                      :content (with-output-to-string (stream)
                                 ,@(cdr (assoc :content args)))))))
 
-(defun format-uri (uri-params query-params)
+(defun format-uri (uri-params &optional query-params)
   (concatenate 'string "http://" *arango-host* ":"
                             (write-to-string *arango-port*) "/_api"
                             (apply #'concatenate 'string
@@ -56,14 +56,12 @@
                                 (apply #'concatenate 'string "?"
                                        (mapcar (lambda (pair)
                                                  (concatenate 'string
-                                                              (url-encode
-                                                               (car pair) :utf-8)
+                                                              (car pair)
                                                               "="
                                                               (cond 
                                                                 ((eq (cdr pair) t) "true") 
                                                                 ((null (cdr pair)) "false")
-                                                                (t (url-encode
-                                                                    (cdr pair) :utf-8)))
+                                                                (t (cdr pair)))
                                                               "&"))
                                                (plist-alist query-params))))))
 
