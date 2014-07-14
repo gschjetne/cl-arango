@@ -49,6 +49,24 @@
            #:delete-edge
            #:read-document-header
            #:read-in-or-outbound-edges
+
+           #:simple-return-all
+           #:simple-by-example
+           #:simple-first-example
+           #:simple-by-example-hash
+           #:simple-by-example-skiplist
+           #:simple-by-example-bitarray
+           #:simple-by-condition-bitarray
+           #:simple-any
+           #:simple-range
+           #:simple-near
+           #:simple-within
+           #:simple-fulltext
+           #:simple-remove-by-example
+           #:simple-replace-by-example
+           #:simple-update-by-example
+           #:simple-first
+           #:simple-last
            
 	   ;; Vars
 	   #:*arango-host*
