@@ -24,7 +24,6 @@
   (:use #:cl
         #:alexandria
         #:anaphora
-        #:yason ; to be removed in a future commit
 	#:drakma)
   
   (:export #:get-current-database
@@ -84,6 +83,16 @@
            #:set-collection-properties
            #:rename-collection
            #:collection-rotate-journal
+
+           #:read-index
+           #:create-index
+           #:cap-constraint
+           #:hash-index
+           #:skip-list
+           #:geo
+           #:full-text
+           #:delete-index
+           #:read-index
 
            #:with-arango-database
            

@@ -68,7 +68,7 @@
       (http-request uri
                     :method method
                     :content content
-                    :content-type "application/json; charset=utf-")
+                    :content-type "application/json; charset=utf-8")
     
     (let* ((content-type (cdr (assoc :content-type header)))
            (result (if (search "application/json" content-type)

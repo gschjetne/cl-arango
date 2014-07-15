@@ -345,12 +345,15 @@
   (:documentation
    "Finds and removes all documents matching the example given by EXAMPLE.")
   (:uri "simple" "remove-by-example")
-  (:content (cons :obj `(("collection" . ,collection)
-                                 ("example" . ,example)
-                                 ("options" . ,(list (if wait-for-sync
-                                                         `("waitForSync" . ,wait-for-sync))
-                                                     (if limit
-                                                         `("limit" . ,limit))))))))
+  (:content `(:obj ("collection" . ,collection)
+                   ("example" . ,example)
+                   ("options" . ,(remove nil
+                                         (list
+                                          :obj
+                                          (if wait-for-sync
+                                              `("waitForSync" . ,wait-for-sync))
+                                          (if limit
+                                              `("limit" . ,limit))))))))
 
 (def-arango-fun simple-replace-by-example (example collection replacement
                                                   &optional wait-for-sync limit)
@@ -359,12 +362,15 @@
    "Finds and replaces all documents matching EXAMPLE by REPLACEMENT.")
   (:uri "simple" "replace-by-example")
   (:content (cons :obj `(("collection" . ,collection)
-                                 ("example" . ,example)
-                                 ("replacement" . ,replacement)
-                                 ("options" . ,(list (if wait-for-sync
-                                                         `("waitForSync" . ,wait-for-sync))
-                                                     (if limit
-                                                         `("limit" . ,limit))))))))
+                         ("example" . ,example)
+                         ("replacement" . ,replacement)
+                         ("options" . ,(remove nil
+                                               (list
+                                                :obj
+                                                (if wait-for-sync
+                                                    `("waitForSync" . ,wait-for-sync))
+                                                (if limit
+                                                    `("limit" . ,limit)))))))))
 
 (def-arango-fun simple-update-by-example (example collection replacement
                                                   &optional keep-null wait-for-sync limit)
@@ -373,15 +379,18 @@
    "Finds all documents matching EXAMPLE and partially updates them
    with REPLACEMENT.")
   (:uri "simple" "update-by-example")
-  (:content (cons :obj `(("collection" . ,collection)
-                                 ("example" . ,example)
-                                 ("replacement" . ,replacement)
-                                 ("options" . ,(list (if keep-null
-                                                         `("keepNull" . ,keep-null))
-                                                     (if wait-for-sync
-                                                         `("waitForSync" . ,wait-for-sync))
-                                                     (if limit
-                                                         `("limit" . ,limit))))))))
+  (:content `(:obj ("collection" . ,collection)
+                   ("example" . ,example)
+                   ("replacement" . ,replacement)
+                   ("options" . ,(remove nil
+                                         (list
+                                          :obj
+                                          (if keep-null
+                                              `("keepNull" . ,keep-null))
+                                          (if wait-for-sync
+                                              `("waitForSync" . ,wait-for-sync))
+                                          (if limit
+                                              `("limit" . ,limit))))))))
 
 (def-arango-fun simple-first (collection &optional (count 1))
   :put
@@ -391,8 +400,8 @@
    result will be a list of documents, with the oldest document being
    first in the result list")
   (:uri "simple" "first")
-  (:content (cons :obj `(("collection" . ,collection)
-                                 ("count" . ,count)))))
+  (:content `(:obj ("collection" . ,collection)
+                   ("count" . ,count))))
 
 (def-arango-fun simple-last (collection &optional (count 1))
   :put
@@ -402,8 +411,8 @@
    result will be a list of documents, with the latest document being
    first in the result list")
   (:uri "simple" "last")
-  (:content (cons :obj `(("collection" . ,collection)
-                                 ("count" . ,count)))))
+  (:content `(:obj ("collection" . ,collection)
+                   ("count" . ,count))))
 
 
 ;; Collections
@@ -529,3 +538,54 @@
 
 
 ;; Indexes
+
+(def-arango-fun read-index (handle)
+  :get
+  (:documentation "")
+  (:uri "index" handle))
+
+(def-arango-fun create-index (collection details)
+  :post
+  (:documentation "Creates a new index in the collection COLLECTION.")
+  (:uri "index")
+  (:query `("collection" ,collection))
+  (:content details))
+
+(defun cap-constraint (&optional size byte-size)
+  `(:obj ("type" . "cap")
+         ("size" . ,size)
+         ("byteSize" . ,byte-size)))
+
+(defun hash-index (fields &optional unique)
+  `(:obj ("type" . "hash")
+         ("fields" . ,fields)
+         ("unique" . ,(t-or-jsf unique))))
+
+(defun skip-list (fields &optional unique)
+  `(:obj ("type" . "skiplist")
+         ("fields" . ,fields)
+         ("unique" . ,(t-or-jsf unique))))
+
+(defun geo (fields)
+  `(:obj ("type" . "geo")
+         ("fields" ,fields)))
+
+(defun full-text (fields min-length)
+  `(:obj ("type" . "fulltext")
+         ("fields" . ,fields)
+         ("minLength" . ,min-length)))
+
+(def-arango-fun delete-index (handle)
+  :delete
+  (:documentation "Deletes an index identified by HANDLE.")
+  (:uri "index" handle))
+
+(def-arango-fun read-all-indexes (collection)
+  :get
+  (:documentation
+   "Returns an object with an attribute indexes containing a list of
+   all index descriptions for the given collection.")
+  (:uri "index")
+  (:query `("collection" ,collection)))
+
+

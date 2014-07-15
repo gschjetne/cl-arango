@@ -28,7 +28,6 @@
   :depends-on (:alexandria
                :anaphora
                :drakma
-               :yason ; to be removed in a future commit
                :jsown)
   :components
   ((:module "src"
