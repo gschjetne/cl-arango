@@ -38,8 +38,8 @@
        (send-request :method ,method
                      :uri (format-uri (list ,@(cdr (assoc :uri args)))
                                       ,@(cdr (assoc :query args)))
-                     :content (with-output-to-string (stream)
-                                ,@(cdr (assoc :content args)))))))
+                     :content (aif ,(cadr (assoc :content args))
+                                   (jsown:to-json it))))))
 
 (defun format-uri (uri-params &optional query-params)
   (concatenate 'string "http://" *arango-host* ":"
@@ -64,18 +64,15 @@
                                                (plist-alist query-params))))))
 
 (defun send-request (&key method uri content)
-  (multiple-value-bind (stream status header)
+  (multiple-value-bind (body status header)
       (http-request uri
                     :method method
                     :content content
-                    :content-type "application/json; charset=utf-8"
-                    :want-stream t)
+                    :content-type "application/json; charset=utf-")
     
     (let* ((content-type (cdr (assoc :content-type header)))
            (result (if (search "application/json" content-type)
-                       (progn (setf (flexi-streams:flexi-stream-external-format stream)
-                                    :utf-8)
-                              (parse stream :object-as :alist)))))
+                       (jsown:parse (flexi-streams:octets-to-string body)))))
       (if (and (>= status 200) (< status 300))
           result
           (error 'arangod-error
@@ -95,3 +92,6 @@
 
 (defun t-or-f (x)
   (if x "true" "false"))
+
+(defun t-or-jsf (x)
+  (if x t :f))

@@ -24,12 +24,13 @@
   (:use #:cl
         #:alexandria
         #:anaphora
-        #:yason
+        #:yason ; to be removed in a future commit
 	#:drakma)
   
   (:export #:get-current-database
            #:list-accessible-databases
            #:list-databases
+           #:database-user
            #:create-database
            #:drop-database
            
@@ -67,6 +68,22 @@
            #:simple-update-by-example
            #:simple-first
            #:simple-last
+
+           #:key-options
+           #:create-collection
+           #:delete-collection
+           #:truncate-collection
+           #:read-collection-properties
+           #:read-collection-document-count
+           #:read-collection-statistics
+           #:read-collection-revision-id
+           #:read-collection-checksum
+           #:read-all-collections
+           #:load-collection
+           #:unload-collection
+           #:set-collection-properties
+           #:rename-collection
+           #:collection-rotate-journal
 
            #:with-arango-database
            

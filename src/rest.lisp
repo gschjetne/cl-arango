@@ -37,19 +37,27 @@
   (:documentation "Retrieves the list of all existing databases.")
   (:uri "database"))
 
-(def-arango-fun create-database (name &optional users)
+(defun database-user (username &optional password active extra)
+  "Constructs a hash table defining a user, suitable for passing to CREATE-DATABASE."
+  (cons :obj (remove nil `(("username" . ,username)
+                           ("active" . ,(t-or-jsf active))
+                           ,(if password `("passwd" . ,password))
+                           ,(if extra `("extra" . ,extra))))))
+
+(def-arango-fun create-database (name &rest users)
   :post
   (:documentation "Creates a new database.")
   (:uri "database")
-  (:content (encode-json-alist (list (cons "name" name)
-                                     (if users
-                                         (cons "users" users))) stream)))
+  (:content (cons :obj
+                  (remove nil `(("name" . ,name)
+                                ,(if users `("users" . ,users)))))))
 
 (def-arango-fun drop-database (name)
   :delete
   (:documentation "Deletes the database along with all data stored in it.")
   (:uri "database" name))
 
+
 ;; Documents
 
 (def-arango-fun read-document (handle)
@@ -66,7 +74,7 @@
   (:query (list "collection" collection
                 "createCollection" create-collection
                 "waitForSync" wait-for-sync))
-  (:content (encode-json-alist document stream)))
+  (:content document))
 
 (def-arango-fun replace-document (document handle &optional
                                            wait-for-sync rev policy)
@@ -77,7 +85,7 @@
   (:query (append `("waitForSync" ,wait-for-sync)
                   (if rev `("rev" ,rev))
                   (if policy `("policy" ,policy))))
-  (:content (encode-json-alist document stream)))
+  (:content document))
 
 (def-arango-fun patch-document (document handle &optional
                                          keep-null wait-for-sync rev policy)
@@ -87,7 +95,7 @@
   (:query (append `("keepNull" ,keep-null "waitForSync" ,wait-for-sync)
                   (if rev `("rev" ,rev))
                   (if policy `("policy" ,policy))))
-  (:content (encode-json-alist document stream)))
+  (:content document))
 
 (def-arango-fun delete-document (handle &optional wait-for-sync rev policy)
   :delete
@@ -113,6 +121,7 @@
   (:uri "document")
   (:query `("collection" ,collection)))
 
+
 ;; Edges
 
 (def-arango-fun read-edge (handle)
@@ -138,7 +147,7 @@
                 "to" to-handle
                 "createCollection" create-collection
                 "waitForSync" wait-for-sync))
-  (:content (encode-json-alist document stream)))
+  (:content document))
 
 (def-arango-fun patch-edge (document handle &optional
                                      keep-null wait-for-sync rev policy)
@@ -148,7 +157,7 @@
   (:query (append `("keepNull" ,keep-null "waitForSync" ,wait-for-sync)
                   (if rev `("rev" ,rev))
                   (if policy `("policy" ,policy))))
-  (:content (encode-json-alist document stream)))
+  (:content document))
 
 (def-arango-fun replace-edge (document handle &optional
                                        wait-for-sync rev policy)
@@ -159,7 +168,7 @@
   (:query (append `("waitForSync" ,wait-for-sync)
                   (if rev `("rev" ,rev))
                   (if policy `("policy" ,policy))))
-  (:content (encode-json-alist document stream)))
+  (:content document))
 
 (def-arango-fun delete-edge (handle &optional wait-for-sync rev policy)
   :delete
@@ -187,89 +196,85 @@
                   (if direction
                       `("direction" ,direction)))))
 
+
 ;; AQL queries
 
+
 ;; Simple queries
 
 (def-arango-fun simple-return-all (collection &optional skip limit)
   :put
   (:documentation "Returns all documents of a collection.")
   (:uri "simple" "all")
-  (:content (encode-json-alist `(("collection" . ,collection)
-                                 ,(if skip `("skip" . ,skip))
-                                 ,(if limit `("limit" . ,limit)))
-                               stream)))
+  (:content (cons :obj (remove nil `(("collection" . ,collection)
+                                     ,(if skip `("skip" . ,skip))
+                                     ,(if limit `("limit" . ,limit)))))))
 
 (def-arango-fun simple-by-example (example collection &optional skip limit)
   :put
   (:documentation "Finds all documents matching the example given by EXAMPLE.")
   (:uri "simple" "by-example")
-  (:content (encode-json-alist `(("collection" . ,collection)
-                                 ("example" . ,example)
-                                 ,(if skip `("skip" . ,skip))
-                                 ,(if limit `("limit" . ,limit)))
-                               stream)))
+  (:content (cons :obj (remove nil `(("collection" . ,collection)
+                                     ("example" . ,example)
+                                     ,(if skip `("skip" . ,skip))
+                                     ,(if limit `("limit" . ,limit)))))))
 
 (def-arango-fun simple-first-example (example collection)
   :put
   (:documentation "Finds all documents matching the example given by EXAMPLE.")
   (:uri "simple" "first-example")
-  (:content (encode-json-alist `(("collection" . ,collection)
-                                 ("example" . ,example)) stream)))
+  (:content `(:obj ("collection" . ,collection)
+                   ("example" . ,example))))
 
 (def-arango-fun simple-by-example-hash (example collection index
                                                 &optional skip limit)
   :put
   (:documentation "Finds all documents matching the example given by EXAMPLE.")
   (:uri "simple" "by-example")
-  (:content (encode-json-alist `(("index" . ,index)
-                                 ("collection" . ,collection)
-                                 ("example" . ,example)
-                                 ,(if skip `("skip" . ,skip))
-                                 ,(if limit `("limit" . ,limit)))
-                               stream)))
+  (:content (cons :obj (remove nil `(("index" . ,index)
+                                     ("collection" . ,collection)
+                                     ("example" . ,example)
+                                     ,(if skip `("skip" . ,skip))
+                                     ,(if limit `("limit" . ,limit)))))))
 
 (def-arango-fun simple-by-example-skiplist (example collection index
                                                     &optional skip limit)
   :put
   (:documentation "Finds all documents matching the example given by EXAMPLE.")
   (:uri "simple" "by-example-skiplist")
-  (:content (encode-json-alist `(("index" . ,index)
-                                 ("collection" . ,collection)
-                                 ("example" . ,example)
-                                 ,(if skip `("skip" . ,skip))
-                                 ,(if limit `("limit" . ,limit)))
-                               stream)))
+  (:content (cons :obj (remove nil `(("index" . ,index)
+                                     ("collection" . ,collection)
+                                     ("example" . ,example)
+                                     ,(if skip `("skip" . ,skip))
+                                     ,(if limit `("limit" . ,limit)))))))
 
 (def-arango-fun simple-by-example-bitarray (example collection index
                                                     &optional skip limit)
   :put
   (:documentation "Finds all documents matching the example given by EXAMPLE.")
   (:uri "simple" "by-example-bitarray")
-  (:content (encode-json-alist `(("index" . ,index)
-                                 ("collection" . ,collection)
-                                 ("example" . ,example)
-                                 ,(if skip `("skip" . ,skip))
-                                 ,(if limit `("limit" . ,limit)))
-                               stream)))
+  (:content (cons :obj (remove nil `(("index" . ,index)
+                                     ("collection" . ,collection)
+                                     ("example" . ,example)
+                                     ,(if skip `("skip" . ,skip))
+                                     ,(if limit `("limit" . ,limit)))))))
 
 (def-arango-fun simple-by-condition-bitarray (condition collection index
                                                         &optional skip limit)
   :put
   (:documentation "Finds all documents matching the example given by EXAMPLE.")
   (:uri "simple" "by-condition-bitarray")
-  (:content (encode-json-alist `(("index" . ,index)
-                                 ("condition" . ,condition)
-                                 ("collection" . ,collection)
-                                 ,(if skip `("skip" . ,skip))
-                                 ,(if limit `("limit" . ,limit)))
-                               stream)))
+  (:content (cons :obj (remove nil `(("index" . ,index)
+                                     ("condition" . ,condition)
+                                     ("collection" . ,collection)
+                                     ,(if skip `("skip" . ,skip))
+                                     ,(if limit `("limit" . ,limit)))))))
 
 (def-arango-fun simple-any (collection)
   :put
   (:documentation "Returns a random document from a collection.")
   (:uri "simple" "any")
-  (:content (encode-json-plist `("collection" ,collection) stream)))
+  (:content `(:obj ("collection" . ,collection))))
 
 (def-arango-fun simple-range (collection attribute left right
                                          &optional closed skip limit)
@@ -279,14 +284,13 @@
    execute a range query, a skip-list index on the queried attribute
    must be present.")
   (:uri "simple" "range")
-  (:content (encode-json-alist `(("attribute" . ,attribute)
-                                 ("left" . ,left)
-                                 ("right" . ,right)
-                                 ("closed" . ,(t-or-f closed))
-                                 ("collection" . ,collection)
-                                 ,(if skip `("skip" . ,skip))
-                                 ,(if limit `("limit" . ,limit)))
-                               stream)))
+  (:content (cons :obj (remove nil `(("attribute" . ,attribute)
+                                     ("left" . ,left)
+                                     ("right" . ,right)
+                                     ("closed" . ,(t-or-f closed))
+                                     ("collection" . ,collection)
+                                     ,(if skip `("skip" . ,skip))
+                                     ,(if limit `("limit" . ,limit)))))))
 
 (def-arango-fun simple-near (collection latitude longitude
                                         &optional distance geo skip limit)
@@ -296,14 +300,13 @@
    coordinate. The returned list is sorted according to the distance,
    with the nearest document being first in the list.")
   (:uri "simple" "near")
-  (:content (encode-json-alist `(("latitude" . ,latitude)
-                                 ("longitude" . ,longitude)
-                                 ("collection" . ,collection)
-                                 ,(if distance `("distance" . ,distance))
-                                 ,(if geo `("geo" . ,geo))
-                                 ,(if skip `("skip" . ,skip))
-                                 ,(if limit `("limit" . ,limit)))
-                               stream)))
+  (:content (cons :obj (remove nil `(("latitude" . ,latitude)
+                                     ("longitude" . ,longitude)
+                                     ("collection" . ,collection)
+                                     ,(if distance `("distance" . ,distance))
+                                     ,(if geo `("geo" . ,geo))
+                                     ,(if skip `("skip" . ,skip))
+                                     ,(if limit `("limit" . ,limit)))))))
 
 (def-arango-fun simple-within (collection latitude longitude radius
                                           &optional distance geo skip limit)
@@ -313,15 +316,14 @@
   coordinate (LATITUDE, LONGITUDE). The returned list is sorted by
   distance.")
   (:uri "simple" "within")
-  (:content (encode-json-alist `(("latitude" . ,latitude)
-                                 ("longitude" . ,longitude)
-                                 ("collection" . ,collection)
-                                 ("radius" . ,radius)
-                                 ,(if distance `("distance" . ,distance))
-                                 ,(if geo `("geo" . ,geo))
-                                 ,(if skip `("skip" . ,skip))
-                                 ,(if limit `("limit" . ,limit)))
-                               stream)))
+  (:content (cons :obj (remove nil `(("latitude" . ,latitude)
+                                     ("longitude" . ,longitude)
+                                     ("collection" . ,collection)
+                                     ("radius" . ,radius)
+                                     ,(if distance `("distance" . ,distance))
+                                     ,(if geo `("geo" . ,geo))
+                                     ,(if skip `("skip" . ,skip))
+                                     ,(if limit `("limit" . ,limit)))))))
 
 (def-arango-fun simple-fulltext (collection attribute query index
                                             &optional skip limit)
@@ -330,13 +332,12 @@
    "This will find all documents from the collection that match the
    fulltext query specified in QUERY.")
   (:uri "simple" "fulltext")
-  (:content (encode-json-alist `(("attribute" . ,attribute)
-                                 ("query" . ,query)
-                                 ("index" . ,index)
-                                 ("collection" . ,collection)
-                                 ,(if skip `("skip" . ,skip))
-                                 ,(if limit `("limit" . ,limit)))
-                               stream)))
+  (:content (cons :obj (remove nil `(("attribute" . ,attribute)
+                                        ("query" . ,query)
+                                        ("index" . ,index)
+                                        ("collection" . ,collection)
+                                        ,(if skip `("skip" . ,skip))
+                                        ,(if limit `("limit" . ,limit)))))))
 
 (def-arango-fun simple-remove-by-example (example collection
                                                   &optional wait-for-sync limit)
@@ -344,13 +345,12 @@
   (:documentation
    "Finds and removes all documents matching the example given by EXAMPLE.")
   (:uri "simple" "remove-by-example")
-  (:content (encode-json-alist `(("collection" . ,collection)
+  (:content (cons :obj `(("collection" . ,collection)
                                  ("example" . ,example)
                                  ("options" . ,(list (if wait-for-sync
                                                          `("waitForSync" . ,wait-for-sync))
                                                      (if limit
-                                                         `("limit" . ,limit)))))
-                               stream)))
+                                                         `("limit" . ,limit))))))))
 
 (def-arango-fun simple-replace-by-example (example collection replacement
                                                   &optional wait-for-sync limit)
@@ -358,14 +358,13 @@
   (:documentation
    "Finds and replaces all documents matching EXAMPLE by REPLACEMENT.")
   (:uri "simple" "replace-by-example")
-  (:content (encode-json-alist `(("collection" . ,collection)
+  (:content (cons :obj `(("collection" . ,collection)
                                  ("example" . ,example)
                                  ("replacement" . ,replacement)
                                  ("options" . ,(list (if wait-for-sync
                                                          `("waitForSync" . ,wait-for-sync))
                                                      (if limit
-                                                         `("limit" . ,limit)))))
-                               stream)))
+                                                         `("limit" . ,limit))))))))
 
 (def-arango-fun simple-update-by-example (example collection replacement
                                                   &optional keep-null wait-for-sync limit)
@@ -374,7 +373,7 @@
    "Finds all documents matching EXAMPLE and partially updates them
    with REPLACEMENT.")
   (:uri "simple" "update-by-example")
-  (:content (encode-json-alist `(("collection" . ,collection)
+  (:content (cons :obj `(("collection" . ,collection)
                                  ("example" . ,example)
                                  ("replacement" . ,replacement)
                                  ("options" . ,(list (if keep-null
@@ -382,8 +381,7 @@
                                                      (if wait-for-sync
                                                          `("waitForSync" . ,wait-for-sync))
                                                      (if limit
-                                                         `("limit" . ,limit)))))
-                               stream)))
+                                                         `("limit" . ,limit))))))))
 
 (def-arango-fun simple-first (collection &optional (count 1))
   :put
@@ -393,8 +391,8 @@
    result will be a list of documents, with the oldest document being
    first in the result list")
   (:uri "simple" "first")
-  (:content (encode-json-alist `(("collection" . ,collection)
-                                 ("count" . ,count)) stream)))
+  (:content (cons :obj `(("collection" . ,collection)
+                                 ("count" . ,count)))))
 
 (def-arango-fun simple-last (collection &optional (count 1))
   :put
@@ -404,5 +402,130 @@
    result will be a list of documents, with the latest document being
    first in the result list")
   (:uri "simple" "last")
-  (:content (encode-json-alist `(("collection" . ,collection)
-                                 ("count" . ,count)) stream)))
+  (:content (cons :obj `(("collection" . ,collection)
+                                 ("count" . ,count)))))
+
+
+;; Collections
+
+(defun key-options (type allow-user-keys &optional increment offset)
+  "Constructs a hash table of key options suitable for passing to CREATE-COLLECTION"
+  (cons :obj (remove nil
+                     (append
+                      (ccase type
+                        (:traditional '(("type" . "traditional")))
+                        (:autoincrement `(("type" . "autoincrement")
+                                          ,(if increment
+                                               `("increment" . ,increment))
+                                          ,(if offset
+                                               `("offset" . ,offset)))))
+                      `(("allowUserKeys" . ,(t-or-f allow-user-keys)))))))
+
+(def-arango-fun create-collection (name &optional wait-for-sync do-compact
+                                        journal-size is-system is-volatile
+                                        key-options (type :document) number-of-shards
+                                        (shard-keys '("_key")))
+  :post
+  (:documentation "Creates an new collection with a given name.")
+  (:uri "collection")
+  (:content (cons :obj
+                  (remove nil `(("name" . ,name)
+                                ("type" . ,(ccase type
+                                                  (:document 2)
+                                                  (:edges 3)))
+                                ,(if wait-for-sync
+                                     `("waitForSync" . ,wait-for-sync))
+                                ,(if do-compact
+                                     `("doCompact" . ,do-compact))
+                                ,(if journal-size
+                                     `("journalSize" . ,journal-size))
+                                ,(if is-system
+                                     `("isSystem" . ,is-system))
+                                ,(if is-volatile
+                                     `("isVolatile" . ,is-volatile))
+                                ,(if key-options
+                                     `("keyOptions" . ,key-options))
+                                ,(if number-of-shards
+                                     `("numberOfShards" . ,number-of-shards))
+                                ,(if number-of-shards
+                                     `("shardKeys" . ,shard-keys)))))))
+
+(def-arango-fun delete-collection (name)
+  :delete
+  (:documentation "Deletes a collection identified by NAME.")
+  (:uri "collection" name))
+
+(def-arango-fun truncate-collection (name)
+  :put
+  (:documentation "Removes all documents from the collection, but leaves the indexes intact.")
+  (:uri "collection" name "truncate"))
+
+(def-arango-fun read-collection-properties (name)
+  :get
+  (:documentation "Read properties of a collection identified by NAME.")
+  (:uri "collection" name "properties"))
+
+(def-arango-fun read-collection-document-count (name)
+  :get
+  (:documentation "Return number of documents in a collection identified by NAME.")
+  (:uri "collection" name "count"))
+
+(def-arango-fun read-collection-statistics (name)
+  :get
+  (:documentation "Return statistics for a collection identified by NAME.")
+  (:uri "collection" name "figures"))
+
+(def-arango-fun read-collection-revision-id (name)
+  :get
+  (:documentation "Return the revision ID of a collection identified by NAME.")
+  (:uri "collection" name "revision"))
+
+(def-arango-fun read-collection-checksum (name)
+  :get
+  (:documentation "Return the checksum of a collection identified by NAME.")
+  (:uri "collection" name "checksum"))
+
+(def-arango-fun read-all-collections ()
+  :get
+  (:documentation "Return all collections")
+  (:uri "collection"))
+
+(def-arango-fun load-collection (name &optional count)
+  :put
+  (:documentation
+   "Loads a collection into memory. If COUNT is set to T, number of
+  documents will also be returned, at a performance penalty")
+  (:uri "collection" name "load")
+  (:query (if count `("count" ,count))))
+
+(def-arango-fun unload-collection (name)
+  :put
+  (:documentation
+   "Removes a collection from memory. This call does not delete any documents.")
+  (:uri "collection" name "unload"))
+
+(def-arango-fun set-collection-properties (name wait-for-sync journal-size)
+  :put
+  (:documentation "Changes the properties of a collection.")
+  (:uri "collection" name "properties")
+  (:content `(:obj ("waitForSync" . ,(t-or-jsf wait-for-sync))
+                   ("journalSize" . ,journal-size))))
+
+(def-arango-fun rename-collection (name new-name)
+  :put
+  (:document "Renames a collection identified by NAME to NEW-NAME.")
+  (:uri "collection" name "rename")
+  (:content `(:obj ("name" . ,new-name))))
+
+(def-arango-fun collection-rotate-journal (name)
+  :put
+  (:document
+   "Rotates the journal of a collection. The current journal of the
+   collection will be closed and made a read-only datafile. The
+   purpose of the rotate method is to make the data in the file
+   available for compaction (compaction is only performed for
+   read-only datafiles, and not for journals).")
+  (:uri "collection" name "rotate"))
+
+
+;; Indexes
