@@ -29,7 +29,6 @@
   (:export #:get-current-database
            #:list-accessible-databases
            #:list-databases
-           #:database-user
            #:create-database
            #:drop-database
            
@@ -93,6 +92,17 @@
            #:full-text
            #:delete-index
            #:read-index
+
+           #:database-user
+           #:create-user
+           #:replace-user
+           #:update-user
+           #:delete-user
+           #:read-user
+
+           #:create-endpoint
+           #:delete-endpoint
+           #:list-endpoints
 
            #:with-arango-database
            

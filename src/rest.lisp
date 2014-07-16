@@ -38,7 +38,8 @@
   (:uri "database"))
 
 (defun database-user (username &optional password active extra)
-  "Constructs a hash table defining a user, suitable for passing to CREATE-DATABASE."
+  "Constructs a list defining a user, suitable for passing to
+CREATE-DATABASE and CREATE-USER."
   (cons :obj (remove nil `(("username" . ,username)
                            ("active" . ,(t-or-jsf active))
                            ,(if password `("passwd" . ,password))
@@ -466,7 +467,8 @@
 
 (def-arango-fun truncate-collection (name)
   :put
-  (:documentation "Removes all documents from the collection, but leaves the indexes intact.")
+  (:documentation
+   "Removes all documents from the collection, but leaves the indexes intact.")
   (:uri "collection" name "truncate"))
 
 (def-arango-fun read-collection-properties (name)
@@ -476,7 +478,8 @@
 
 (def-arango-fun read-collection-document-count (name)
   :get
-  (:documentation "Return number of documents in a collection identified by NAME.")
+  (:documentation
+   "Return number of documents in a collection identified by NAME.")
   (:uri "collection" name "count"))
 
 (def-arango-fun read-collection-statistics (name)
@@ -588,4 +591,99 @@
   (:uri "index")
   (:query `("collection" ,collection)))
 
+
+;; Transactions
 
+;; General Graph
+
+;; Traversals
+
+;; Replication
+
+;; Bulk Imports
+
+;; Batch Requests
+
+;; Monitoring
+
+
+;; User Management
+
+(defun database-user (username &optional password (active t) extra)
+  "Constructs a list defining a user, suitable for passing to
+CREATE-DATABASE and CREATE-USER."
+  (cons :obj (remove nil `(("username" . ,username)
+                           ("active" . ,(t-or-jsf active))
+                           ,(if password `("passwd" . ,password))
+                           ,(if extra `("extra" . ,extra))))))
+
+(def-arango-fun create-user (database-user &optional change-password)
+  :post
+  (:documentation "")
+  (:uri "user")
+  (:content (append database-user
+                    `(("changePassword" . ,(t-or-jsf change-password))))))
+
+(defmacro replace-or-update-user (name method documentation)
+  `(def-arango-fun ,name (username password &optional
+                                   (active t) extra change-password)
+     ,method
+     (:documentation ,documentation)
+     (:uri "user" username)
+     (:content (cons :obj (remove nil `(("passwd" . ,password)
+                                        ("active" . ,(t-or-jsf active))
+                                        ,(if password
+                                             `("changePassword" . ,(t-or-jsf change-password)))
+                                        ,(if extra `("extra" . ,extra))))))))
+
+(replace-or-update-user replace-user :put
+                        "Replaces the data of an existing user.")
+(replace-or-update-user update-user :patch
+                        "Updates the data of an existing user.")
+
+(def-arango-fun delete-user (username)
+  :delete
+  (:documentation "Removes an existing user, identified by USER.")
+  (:uri "user" username))
+
+(def-arango-fun read-user (username)
+  :get
+  (:documentation "Fetches data about the specified user.")
+  (:uri "user" username))
+
+;; Async Result
+
+;; Endpoints
+
+(def-arango-fun create-endpoint (endpoint &rest databases)
+  :post
+  (:documentation
+   "Add a new endpoint, or reconfigure an existing one. If DATABASES
+   is NIL, all databases present in the server will become accessible
+   via the endpoint, with the _system database being the default
+   database.")
+  (:uri "endpoint")
+  (:content `(:obj ("endpoint" . ,endpoint)
+                   ("databases" . ,databases))))
+
+(def-arango-fun delete-endpoint (endpoint)
+  :delete
+  (:documentation
+   "This operation deletes an existing endpoint from the list of all
+   endpoints, and makes the server stop listening on the endpoint.")
+  (:uri "endpoint" endpoint))
+
+(def-arango-fun list-endpoints ()
+  :get
+  (:documentation
+   "Returns a list of all configured endpoints the server is listening
+  on. For each endpoint, the list of allowed databases is returned too
+  if set.")
+  (:uri "endpoint"))
+
+
+;; Sharding
+
+;; Miscellaneous
+
+;; General Handling
