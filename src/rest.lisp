@@ -16,7 +16,7 @@
 ;; License along with Foobar.  If not, see
 ;; <http://www.gnu.org/licenses/>.
 
-(in-package #:cl-arango)
+(in-package #:cl-arango-rest)
 
 ;; Databases
 
@@ -36,14 +36,6 @@
   :get
   (:documentation "Retrieves the list of all existing databases.")
   (:uri "database"))
-
-(defun database-user (username &optional password active extra)
-  "Constructs a list defining a user, suitable for passing to
-CREATE-DATABASE and CREATE-USER."
-  (cons :obj (remove nil `(("username" . ,username)
-                           ("active" . ,(t-or-jsf active))
-                           ,(if password `("passwd" . ,password))
-                           ,(if extra `("extra" . ,extra))))))
 
 (def-arango-fun create-database (name &rest users)
   :post

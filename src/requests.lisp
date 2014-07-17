@@ -16,7 +16,7 @@
 ;; License along with Foobar.  If not, see
 ;; <http://www.gnu.org/licenses/>.
 
-(in-package :cl-arango)
+(in-package :cl-arango-rest)
 
 ;; Settings
 
@@ -32,14 +32,13 @@
 ;; Request apparatus
 
 (defmacro def-arango-fun (name lambda-list method &rest args)
-  `(progn
-     (defun ,name ,lambda-list
-       ,(cadr (assoc :documentation args))
-       (send-request :method ,method
-                     :uri (format-uri (list ,@(cdr (assoc :uri args)))
-                                      ,@(cdr (assoc :query args)))
-                     :content (aif ,(cadr (assoc :content args))
-                                   (jsown:to-json it))))))
+  `(defun ,name ,lambda-list
+     ,(cadr (assoc :documentation args))
+     (send-request :method ,method
+                   :uri (format-uri (list ,@(cdr (assoc :uri args)))
+                                    ,@(cdr (assoc :query args)))
+                   :content (aif ,(cadr (assoc :content args))
+                                 (jsown:to-json it)))))
 
 (defun format-uri (uri-params &optional query-params)
   (concatenate 'string "http://" *arango-host* ":"

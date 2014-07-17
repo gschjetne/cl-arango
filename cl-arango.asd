@@ -34,5 +34,5 @@
             :serial t
             :components
             ((:file "package")
-             (:file "requests")
+             (:file "requests" :depends-on ("package"))
              (:file "rest" :depends-on ("requests"))))))

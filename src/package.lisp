@@ -20,7 +20,7 @@
 
 (in-package #:cl-user)
 
-(defpackage #:cl-arango
+(defpackage #:cl-arango-rest
   (:use #:cl
         #:alexandria
         #:anaphora
@@ -109,3 +109,9 @@
 	   ;; Vars
 	   #:*arango-host*
 	   #:*arango-port*))
+
+(defpackage #:cl-arango
+  (:use #:cl
+        #:alexandria
+        #:anaphora
+        #:cl-arango-rest))
