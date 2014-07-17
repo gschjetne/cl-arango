@@ -13,7 +13,7 @@
 ;; Lesser General Public License for more details.
 
 ;; You should have received a copy of the GNU Lesser General Public
-;; License along with Foobar.  If not, see
+;; License along with CL-Arango.  If not, see
 ;; <http://www.gnu.org/licenses/>.
 
 
