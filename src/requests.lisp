@@ -67,6 +67,7 @@
       (http-request uri
                     :method method
                     :content content
+                    :external-format-out :utf-8
                     :content-type "application/json; charset=utf-8")
     
     (let* ((content-type (cdr (assoc :content-type header)))
@@ -74,18 +75,10 @@
                        (jsown:parse (flexi-streams:octets-to-string body)))))
       (if (and (>= status 200) (< status 300))
           result
-          (error 'arangod-error
-                 :code (cdr (assoc "code" result))
-                 :num (cdr (assoc "errorNum" result))
-                 :message (cdr (assoc "errorMessage" result)))))))
-
-(define-condition arangod-error (error)
-  ((code :accessor code :initarg :code)
-   (num :accessor num :initarg :num)
-   (message :accessor message :initarg :message))
-  (:report (lambda (condition stream)
-             (format stream "Code: ~D, number: ~D, message: ~A"
-                     (code condition) (num condition) (message condition)))))
+          (error (format nil "ArangoDB Error ~D/~D: \"~A\""
+                         (cdr (assoc "code" (cdr result) :test #'equal))
+                         (cdr (assoc "errorNum" (cdr result) :test #'equal))
+                         (cdr (assoc "errorMessage" (cdr result) :test #'equal))))))))
 
 ;; Utility functions
 
