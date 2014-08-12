@@ -110,7 +110,7 @@
 	   #:*arango-host*
 	   #:*arango-port*))
 
-(defpackage #:cl-arango
+(defpackage #:arango
   (:use #:cl
         #:alexandria
         #:anaphora

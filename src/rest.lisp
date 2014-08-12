@@ -23,24 +23,24 @@
 (def-arango-fun get-current-database ()
   :get
   (:documentation "Retrieves information about the current database.")
-  (:uri "database" "current"))
+  (:uri '("database" "current")))
 
 (def-arango-fun list-accessible-databases ()
   :get
   (:documentation
    "Retrieves the list of all databases the current user can access
   without specifying a different username or password.")
-  (:uri "database" "user"))
+  (:uri '("database" "user")))
 
 (def-arango-fun list-databases ()
   :get
   (:documentation "Retrieves the list of all existing databases.")
-  (:uri "database"))
+  (:uri '("database")))
 
 (def-arango-fun create-database (name &rest users)
   :post
   (:documentation "Creates a new database.")
-  (:uri "database")
+  (:uri '("database"))
   (:content (cons :obj
                   (remove nil `(("name" . ,name)
                                 ,(if users `("users" . ,users)))))))
@@ -48,7 +48,7 @@
 (def-arango-fun drop-database (name)
   :delete
   (:documentation "Deletes the database along with all data stored in it.")
-  (:uri "database" name))
+  (:uri `("database" ,name)))
 
 
 ;; Documents
@@ -57,13 +57,13 @@
   :get
   (:documentation
    "Returns the document identified by HANDLE.")
-  (:uri "document" handle))
+  (:uri `("document" ,handle)))
 
 (def-arango-fun create-document (document collection &optional
                                           create-collection wait-for-sync)
   :post
   (:documentation "Creates a new document in the collection named COLLECTION.")
-  (:uri "document")
+  (:uri '("document"))
   (:query (list "collection" collection
                 "createCollection" create-collection
                 "waitForSync" wait-for-sync))
@@ -74,7 +74,7 @@
   :put
   (:documentation
    "Completely updates (i.e. replaces) the document identified by HANDLE.")
-  (:uri "document" handle)
+  (:uri `("document" ,handle))
   (:query (append `("waitForSync" ,wait-for-sync)
                   (if rev `("rev" ,rev))
                   (if policy `("policy" ,policy))))
@@ -84,7 +84,7 @@
                                          keep-null wait-for-sync rev policy)
   :patch
   (:documentation "Partially updates the document identified by HANDLE.")
-  (:uri "document" handle)
+  (:uri `("document" ,handle))
   (:query (append `("keepNull" ,keep-null "waitForSync" ,wait-for-sync)
                   (if rev `("rev" ,rev))
                   (if policy `("policy" ,policy))))
@@ -93,7 +93,7 @@
 (def-arango-fun delete-document (handle &optional wait-for-sync rev policy)
   :delete
   (:documentation "Deletes a document.")
-  (:uri "document" handle)
+  (:uri `("document" ,handle))
   (:query (append `("waitForSync" ,wait-for-sync)
                   (if rev `("rev" ,rev))
                   (if policy `("policy" ,policy)))))
@@ -103,7 +103,7 @@
   :head
   (:documentation
    "Like READ-DOCUMENT, but only returns the header fields and not the body.")
-  (:uri "document" handle)
+  (:uri `("document" ,handle))
   (:query (if rev `("rev" rev))))
 
 (def-arango-fun read-all-documents (collection)
@@ -111,7 +111,7 @@
   (:documentation
    "Returns a list of all URI for all documents from the collection
    identified by COLLECTION.")
-  (:uri "document")
+  (:uri '("document"))
   (:query `("collection" ,collection)))
 
 
@@ -120,21 +120,21 @@
 (def-arango-fun read-edge (handle)
   :get
   (:documentation "Returns the edge identified by HANDLE.")
-  (:uri "edge" handle))
+  (:uri `("edge" ,handle)))
 
 (def-arango-fun read-all-edges (collection)
   :get
   (:documentation
    "Returns a list of all URI for all edges from the collection
    identified by COLLECTION.")
-  (:uri "edge")
+  (:uri '("edge"))
   (:query `("collection" ,collection)))
 
 (def-arango-fun create-edge (document collection from-handle to-handle
                                       &optional create-collection wait-for-sync)
   :post
   (:documentation "Creates a new edge document in the collection named COLLECTION")
-  (:uri "edge")
+  (:uri '("edge"))
   (:query (list "collection" collection
                 "from" from-handle
                 "to" to-handle
@@ -146,7 +146,7 @@
                                      keep-null wait-for-sync rev policy)
   :patch
   (:documentation "Partially updates the edge document identified by HANDLE.")
-  (:uri "edge" handle)
+  (:uri `("edge" ,handle))
   (:query (append `("keepNull" ,keep-null "waitForSync" ,wait-for-sync)
                   (if rev `("rev" ,rev))
                   (if policy `("policy" ,policy))))
@@ -157,7 +157,7 @@
   :put
   (:documentation
    "Completely updates (i.e. replaces) the edge identified by HANDLE.")
-  (:uri "edge" handle)
+  (:uri `("edge" ,handle))
   (:query (append `("waitForSync" ,wait-for-sync)
                   (if rev `("rev" ,rev))
                   (if policy `("policy" ,policy))))
@@ -166,7 +166,7 @@
 (def-arango-fun delete-edge (handle &optional wait-for-sync rev policy)
   :delete
   (:documentation "Deletes an edge.")
-  (:uri "edge" handle)
+  (:uri `("edge" ,handle))
   (:query (append `("waitForSync" ,wait-for-sync)
                   (if rev `("rev" ,rev))
                   (if policy `("policy" ,policy)))))
@@ -176,7 +176,7 @@
   :head
   (:documentation
    "Like READ-EDGE, but only returns the header fields and not the body.")
-  (:uri "document" handle)
+  (:uri `("document" ,handle))
   (:query (if rev `("rev" rev))))
 
 (def-arango-fun read-in-or-outbound-edges (collection vertex &optional direction)
@@ -184,7 +184,7 @@
   (:documentation
    "Returns the list of edges starting or ending in the vertex
    identified by VERTEX.")
-  (:uri "edges" collection)
+  (:uri `("edges" ,collection))
   (:query (append `("vertex" ,vertex)
                   (if direction
                       `("direction" ,direction)))))
@@ -198,7 +198,7 @@
 (def-arango-fun simple-return-all (collection &optional skip limit)
   :put
   (:documentation "Returns all documents of a collection.")
-  (:uri "simple" "all")
+  (:uri '("simple" "all"))
   (:content (cons :obj (remove nil `(("collection" . ,collection)
                                      ,(if skip `("skip" . ,skip))
                                      ,(if limit `("limit" . ,limit)))))))
@@ -206,7 +206,7 @@
 (def-arango-fun simple-by-example (example collection &optional skip limit)
   :put
   (:documentation "Finds all documents matching the example given by EXAMPLE.")
-  (:uri "simple" "by-example")
+  (:uri '("simple" "by-example"))
   (:content (cons :obj (remove nil `(("collection" . ,collection)
                                      ("example" . ,example)
                                      ,(if skip `("skip" . ,skip))
@@ -215,7 +215,7 @@
 (def-arango-fun simple-first-example (example collection)
   :put
   (:documentation "Finds all documents matching the example given by EXAMPLE.")
-  (:uri "simple" "first-example")
+  (:uri '("simple" "first-example"))
   (:content `(:obj ("collection" . ,collection)
                    ("example" . ,example))))
 
@@ -223,7 +223,7 @@
                                                 &optional skip limit)
   :put
   (:documentation "Finds all documents matching the example given by EXAMPLE.")
-  (:uri "simple" "by-example")
+  (:uri '("simple" "by-example"))
   (:content (cons :obj (remove nil `(("index" . ,index)
                                      ("collection" . ,collection)
                                      ("example" . ,example)
@@ -234,7 +234,7 @@
                                                     &optional skip limit)
   :put
   (:documentation "Finds all documents matching the example given by EXAMPLE.")
-  (:uri "simple" "by-example-skiplist")
+  (:uri '("simple" "by-example-skiplist"))
   (:content (cons :obj (remove nil `(("index" . ,index)
                                      ("collection" . ,collection)
                                      ("example" . ,example)
@@ -245,7 +245,7 @@
                                                     &optional skip limit)
   :put
   (:documentation "Finds all documents matching the example given by EXAMPLE.")
-  (:uri "simple" "by-example-bitarray")
+  (:uri '("simple" "by-example-bitarray"))
   (:content (cons :obj (remove nil `(("index" . ,index)
                                      ("collection" . ,collection)
                                      ("example" . ,example)
@@ -256,7 +256,7 @@
                                                         &optional skip limit)
   :put
   (:documentation "Finds all documents matching the example given by EXAMPLE.")
-  (:uri "simple" "by-condition-bitarray")
+  (:uri '("simple" "by-condition-bitarray"))
   (:content (cons :obj (remove nil `(("index" . ,index)
                                      ("condition" . ,condition)
                                      ("collection" . ,collection)
@@ -266,7 +266,7 @@
 (def-arango-fun simple-any (collection)
   :put
   (:documentation "Returns a random document from a collection.")
-  (:uri "simple" "any")
+  (:uri '("simple" "any"))
   (:content `(:obj ("collection" . ,collection))))
 
 (def-arango-fun simple-range (collection attribute left right
@@ -276,7 +276,7 @@
    "This will find all documents within a given range. In order to
    execute a range query, a skip-list index on the queried attribute
    must be present.")
-  (:uri "simple" "range")
+  (:uri '("simple" "range"))
   (:content (cons :obj (remove nil `(("attribute" . ,attribute)
                                      ("left" . ,left)
                                      ("right" . ,right)
@@ -292,7 +292,7 @@
    "The default will find at most 100 documents near the given
    coordinate. The returned list is sorted according to the distance,
    with the nearest document being first in the list.")
-  (:uri "simple" "near")
+  (:uri '("simple" "near"))
   (:content (cons :obj (remove nil `(("latitude" . ,latitude)
                                      ("longitude" . ,longitude)
                                      ("collection" . ,collection)
@@ -308,7 +308,7 @@
    "This will find all documents within a given radius around the
   coordinate (LATITUDE, LONGITUDE). The returned list is sorted by
   distance.")
-  (:uri "simple" "within")
+  (:uri '("simple" "within"))
   (:content (cons :obj (remove nil `(("latitude" . ,latitude)
                                      ("longitude" . ,longitude)
                                      ("collection" . ,collection)
@@ -324,7 +324,7 @@
   (:documentation
    "This will find all documents from the collection that match the
    fulltext query specified in QUERY.")
-  (:uri "simple" "fulltext")
+  (:uri '("simple" "fulltext"))
   (:content (cons :obj (remove nil `(("attribute" . ,attribute)
                                         ("query" . ,query)
                                         ("index" . ,index)
@@ -337,7 +337,7 @@
   :put
   (:documentation
    "Finds and removes all documents matching the example given by EXAMPLE.")
-  (:uri "simple" "remove-by-example")
+  (:uri '("simple" "remove-by-example"))
   (:content `(:obj ("collection" . ,collection)
                    ("example" . ,example)
                    ("options" . ,(remove nil
@@ -353,7 +353,7 @@
   :put
   (:documentation
    "Finds and replaces all documents matching EXAMPLE by REPLACEMENT.")
-  (:uri "simple" "replace-by-example")
+  (:uri '("simple" "replace-by-example"))
   (:content (cons :obj `(("collection" . ,collection)
                          ("example" . ,example)
                          ("replacement" . ,replacement)
@@ -371,7 +371,7 @@
   (:documentation
    "Finds all documents matching EXAMPLE and partially updates them
    with REPLACEMENT.")
-  (:uri "simple" "update-by-example")
+  (:uri '("simple" "update-by-example"))
   (:content `(:obj ("collection" . ,collection)
                    ("example" . ,example)
                    ("replacement" . ,replacement)
@@ -392,7 +392,7 @@
    insertion/update time. When the COUNT argument is supplied, the
    result will be a list of documents, with the oldest document being
    first in the result list")
-  (:uri "simple" "first")
+  (:uri '("simple" "first"))
   (:content `(:obj ("collection" . ,collection)
                    ("count" . ,count))))
 
@@ -403,7 +403,7 @@
    insertion/update time. When the COUNT argument is supplied, the
    result will be a list of documents, with the latest document being
    first in the result list")
-  (:uri "simple" "last")
+  (:uri '("simple" "last"))
   (:content `(:obj ("collection" . ,collection)
                    ("count" . ,count))))
 
@@ -429,7 +429,7 @@
                                         (shard-keys '("_key")))
   :post
   (:documentation "Creates an new collection with a given name.")
-  (:uri "collection")
+  (:uri '("collection"))
   (:content (cons :obj
                   (remove nil `(("name" . ,name)
                                 ("type" . ,(ccase type
@@ -455,70 +455,70 @@
 (def-arango-fun delete-collection (name)
   :delete
   (:documentation "Deletes a collection identified by NAME.")
-  (:uri "collection" name))
+  (:uri `("collection" ,name)))
 
 (def-arango-fun truncate-collection (name)
   :put
   (:documentation
    "Removes all documents from the collection, but leaves the indexes intact.")
-  (:uri "collection" name "truncate"))
+  (:uri `("collection" ,name "truncate")))
 
 (def-arango-fun read-collection-properties (name)
   :get
   (:documentation "Read properties of a collection identified by NAME.")
-  (:uri "collection" name "properties"))
+  (:uri `("collection" ,name "properties")))
 
 (def-arango-fun read-collection-document-count (name)
   :get
   (:documentation
    "Return number of documents in a collection identified by NAME.")
-  (:uri "collection" name "count"))
+  (:uri `("collection" ,name "count")))
 
 (def-arango-fun read-collection-statistics (name)
   :get
   (:documentation "Return statistics for a collection identified by NAME.")
-  (:uri "collection" name "figures"))
+  (:uri `("collection" ,name "figures")))
 
 (def-arango-fun read-collection-revision-id (name)
   :get
   (:documentation "Return the revision ID of a collection identified by NAME.")
-  (:uri "collection" name "revision"))
+  (:uri `("collection" ,name "revision")))
 
 (def-arango-fun read-collection-checksum (name)
   :get
   (:documentation "Return the checksum of a collection identified by NAME.")
-  (:uri "collection" name "checksum"))
+  (:uri `("collection" ,name "checksum")))
 
 (def-arango-fun read-all-collections ()
   :get
   (:documentation "Return all collections")
-  (:uri "collection"))
+  (:uri '("collection")))
 
 (def-arango-fun load-collection (name &optional count)
   :put
   (:documentation
    "Loads a collection into memory. If COUNT is set to T, number of
   documents will also be returned, at a performance penalty")
-  (:uri "collection" name "load")
+  (:uri `("collection" ,name "load"))
   (:query (if count `("count" ,count))))
 
 (def-arango-fun unload-collection (name)
   :put
   (:documentation
    "Removes a collection from memory. This call does not delete any documents.")
-  (:uri "collection" name "unload"))
+  (:uri `("collection" ,name "unload")))
 
 (def-arango-fun set-collection-properties (name wait-for-sync journal-size)
   :put
   (:documentation "Changes the properties of a collection.")
-  (:uri "collection" name "properties")
+  (:uri `("collection" ,name "properties"))
   (:content `(:obj ("waitForSync" . ,(t-or-jsf wait-for-sync))
                    ("journalSize" . ,journal-size))))
 
 (def-arango-fun rename-collection (name new-name)
   :put
   (:document "Renames a collection identified by NAME to NEW-NAME.")
-  (:uri "collection" name "rename")
+  (:uri `("collection" ,name "rename"))
   (:content `(:obj ("name" . ,new-name))))
 
 (def-arango-fun collection-rotate-journal (name)
@@ -529,7 +529,7 @@
    purpose of the rotate method is to make the data in the file
    available for compaction (compaction is only performed for
    read-only datafiles, and not for journals).")
-  (:uri "collection" name "rotate"))
+  (:uri `("collection" ,name "rotate")))
 
 
 ;; Indexes
@@ -537,12 +537,12 @@
 (def-arango-fun read-index (handle)
   :get
   (:documentation "")
-  (:uri "index" handle))
+  (:uri '("index" handle)))
 
 (def-arango-fun create-index (collection details)
   :post
   (:documentation "Creates a new index in the collection COLLECTION.")
-  (:uri "index")
+  (:uri '("index"))
   (:query `("collection" ,collection))
   (:content details))
 
@@ -573,14 +573,14 @@
 (def-arango-fun delete-index (handle)
   :delete
   (:documentation "Deletes an index identified by HANDLE.")
-  (:uri "index" handle))
+  (:uri `("index" ,handle)))
 
 (def-arango-fun read-all-indexes (collection)
   :get
   (:documentation
    "Returns an object with an attribute indexes containing a list of
    all index descriptions for the given collection.")
-  (:uri "index")
+  (:uri '("index"))
   (:query `("collection" ,collection)))
 
 
@@ -612,7 +612,7 @@ CREATE-DATABASE and CREATE-USER."
 (def-arango-fun create-user (database-user &optional change-password)
   :post
   (:documentation "")
-  (:uri "user")
+  (:uri '("user"))
   (:content (append database-user
                     `(("changePassword" . ,(t-or-jsf change-password))))))
 
@@ -621,7 +621,7 @@ CREATE-DATABASE and CREATE-USER."
                                    (active t) extra change-password)
      ,method
      (:documentation ,documentation)
-     (:uri "user" username)
+     (:uri `("user" ,username))
      (:content (cons :obj (remove nil `(("passwd" . ,password)
                                         ("active" . ,(t-or-jsf active))
                                         ,(if password
@@ -636,12 +636,12 @@ CREATE-DATABASE and CREATE-USER."
 (def-arango-fun delete-user (username)
   :delete
   (:documentation "Removes an existing user, identified by USER.")
-  (:uri "user" username))
+  (:uri `("user" ,username)))
 
 (def-arango-fun read-user (username)
   :get
   (:documentation "Fetches data about the specified user.")
-  (:uri "user" username))
+  (:uri `("user" ,username)))
 
 ;; Async Result
 
@@ -654,7 +654,7 @@ CREATE-DATABASE and CREATE-USER."
    is NIL, all databases present in the server will become accessible
    via the endpoint, with the _system database being the default
    database.")
-  (:uri "endpoint")
+  (:uri '("endpoint"))
   (:content `(:obj ("endpoint" . ,endpoint)
                    ("databases" . ,databases))))
 
@@ -663,7 +663,7 @@ CREATE-DATABASE and CREATE-USER."
   (:documentation
    "This operation deletes an existing endpoint from the list of all
    endpoints, and makes the server stop listening on the endpoint.")
-  (:uri "endpoint" endpoint))
+  (:uri `("endpoint" ,endpoint)))
 
 (def-arango-fun list-endpoints ()
   :get
@@ -671,7 +671,7 @@ CREATE-DATABASE and CREATE-USER."
    "Returns a list of all configured endpoints the server is listening
   on. For each endpoint, the list of allowed databases is returned too
   if set.")
-  (:uri "endpoint"))
+  (:uri '("endpoint")))
 
 
 ;; Sharding

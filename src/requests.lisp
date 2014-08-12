@@ -32,35 +32,41 @@
 ;; Request apparatus
 
 (defmacro def-arango-fun (name lambda-list method &rest args)
-  `(defun ,name ,lambda-list
+  `(defun ,name ,(append lambda-list '(&key database))
      ,(cadr (assoc :documentation args))
      (send-request :method ,method
-                   :uri (format-uri (list ,@(cdr (assoc :uri args)))
-                                    ,@(cdr (assoc :query args)))
+                   :uri (format-uri ,@(remove nil (append (assoc :uri args)
+                                                          (assoc :query args)))
+                                    :database database)
                    :content (aif ,(cadr (assoc :content args))
                                  (jsown:to-json it)))))
 
-(defun format-uri (uri-params &optional query-params)
+(defun format-uri (&key uri query database)
   (concatenate 'string "http://" *arango-host* ":"
-                            (write-to-string *arango-port*) "/_api"
-                            (apply #'concatenate 'string
-                                   (append (mapcar (lambda (segment)
-                                                     (concatenate 'string
-                                                                  "/"
-                                                                  segment))
-                                                   uri-params)))
-                            (if query-params
-                                (apply #'concatenate 'string "?"
-                                       (mapcar (lambda (pair)
-                                                 (concatenate 'string
-                                                              (car pair)
-                                                              "="
-                                                              (cond 
-                                                                ((eq (cdr pair) t) "true") 
-                                                                ((null (cdr pair)) "false")
-                                                                (t (cdr pair)))
-                                                              "&"))
-                                               (plist-alist query-params))))))
+               (write-to-string *arango-port*)
+               (if database
+                   (concatenate 'string
+                                "/_db/"
+                                database))
+               "/_api"
+               (apply #'concatenate 'string
+                      (append (mapcar (lambda (segment)
+                                        (concatenate 'string
+                                                     "/"
+                                                     segment))
+                                      uri)))
+               (if query
+                   (apply #'concatenate 'string "?"
+                          (mapcar (lambda (pair)
+                                    (concatenate 'string
+                                                 (car pair)
+                                                 "="
+                                                 (cond 
+                                                   ((eq (cdr pair) t) "true") 
+                                                   ((null (cdr pair)) "false")
+                                                   (t (cdr pair)))
+                                                 "&"))
+                                  (plist-alist query))))))
 
 (defun send-request (&key method uri content)
   (multiple-value-bind (body status header)
