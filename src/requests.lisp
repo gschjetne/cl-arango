@@ -22,22 +22,27 @@
 
 (defvar *arango-host* "localhost")
 (defvar *arango-port* 8529)
+(defvar *arango-database* "_system")
 
 
-(defmacro with-arango-database ((host port) &rest body)
+(defmacro with-endpoint ((host port) &body body)
   `(let ((*arango-host* ,host)
          (*arango-port* ,port))
+     ,@body))
+
+(defmacro with-database ((name) &body body)
+  `(let ((*arango-database* ,name))
      ,@body))
 
 ;; Request apparatus
 
 (defmacro def-arango-fun (name lambda-list method &rest args)
-  `(defun ,name ,(append lambda-list '(&key database))
+  `(defun ,name ,lambda-list
      ,(cadr (assoc :documentation args))
      (send-request :method ,method
                    :uri (format-uri ,@(remove nil (append (assoc :uri args)
                                                           (assoc :query args)))
-                                    :database database)
+                                    :database *arango-database*)
                    :content (aif ,(cadr (assoc :content args))
                                  (jsown:to-json it)))))
 

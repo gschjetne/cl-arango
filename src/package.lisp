@@ -104,11 +104,8 @@
            #:delete-endpoint
            #:list-endpoints
 
-           #:with-arango-database
-           
-	   ;; Vars
-	   #:*arango-host*
-	   #:*arango-port*))
+           #:with-endpoint
+           #:with-database))
 
 (defpackage #:arango
   (:use #:cl
