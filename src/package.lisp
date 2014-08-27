@@ -91,7 +91,7 @@
            #:geo
            #:full-text
            #:delete-index
-           #:read-index
+           #:read-all-indexes
 
            #:database-user
            #:create-user
@@ -105,7 +105,14 @@
            #:list-endpoints
 
            #:with-endpoint
-           #:with-database))
+           #:with-database
+           #:with-user
+
+           #:*arango-host*
+           #:*arango-port*
+           #:*arango-database*
+           #:*username*
+           #:*password*))
 
 (defpackage #:arango
   (:use #:cl

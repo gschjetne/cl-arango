@@ -537,7 +537,7 @@
 (def-arango-fun read-index (handle)
   :get
   (:documentation "")
-  (:uri '("index" handle)))
+  (:uri `("index" ,handle)))
 
 (def-arango-fun create-index (collection details)
   :post

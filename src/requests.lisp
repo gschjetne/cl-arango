@@ -23,7 +23,8 @@
 (defvar *arango-host* "localhost")
 (defvar *arango-port* 8529)
 (defvar *arango-database* "_system")
-
+(defvar *username* nil)
+(defvar *password* nil)
 
 (defmacro with-endpoint ((host port) &body body)
   `(let ((*arango-host* ,host)
@@ -32,6 +33,11 @@
 
 (defmacro with-database ((name) &body body)
   `(let ((*arango-database* ,name))
+     ,@body))
+
+(defmacro with-user ((username password) &body body)
+  `(let ((*username* ,username)
+         (*password* ,password))
      ,@body))
 
 ;; Request apparatus
@@ -43,6 +49,8 @@
                    :uri (format-uri ,@(remove nil (append (assoc :uri args)
                                                           (assoc :query args)))
                                     :database *arango-database*)
+                   :username *username*
+                   :password *password*
                    :content (aif ,(cadr (assoc :content args))
                                  (jsown:to-json it)))))
 
@@ -73,17 +81,20 @@
                                                  "&"))
                                   (plist-alist query))))))
 
-(defun send-request (&key method uri content)
+(defun send-request (&key method uri content username password)
   (multiple-value-bind (body status header)
       (http-request uri
                     :method method
                     :content content
                     :external-format-out :utf-8
-                    :content-type "application/json; charset=utf-8")
+                    :content-type "application/json; charset=utf-8"
+                    :basic-authorization (if (and username password)
+                                             (list username password)))
     
     (let* ((content-type (cdr (assoc :content-type header)))
            (result (if (search "application/json" content-type)
-                       (jsown:parse (flexi-streams:octets-to-string body)))))
+                       (jsown:parse (flexi-streams:octets-to-string body
+                                                                    :external-format :utf-8)))))
       (if (and (>= status 200) (< status 300))
           result
           (error (format nil "ArangoDB Error ~D/~D: \"~A\""

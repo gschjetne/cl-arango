@@ -1,12 +1,16 @@
 (in-package #:arango)
 
-(defvar *system-database* (make-instance 'database :name "_system"))
+(defun connect (&key (host *arango-host*) (port *arango-port*))
+  (with-endpoint (host port)
+    (list-accessible-databases)))
 
 (defclass arango-object ()
   ((properties :initform (make-hash-table))))
 
 (defclass database (arango-object)
   ((name :initarg :name)))
+
+(defclass system-database (database))
 
 (defclass document (arango-object)
   ((database :initform *system-database*)))
