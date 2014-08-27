@@ -22,13 +22,13 @@
 (defclass endpoint (arango-object)
   ((databases)))
 
-(defgeneric drop (object)
+(defgeneric delete-object (object)
   (:documentation "Removes the given OBJECT from the database"))
 
-(defmethod drop ((db database))
+(defmethod delete-object ((db database))
   (drop-database (slot-value db 'name)
                  :database (slot-value *system-database* 'name)))
 
-(defmethod drop ((doc document))
+(defmethod delete-object ((doc document))
   (delete-document (slot-value doc 'handle)
                    :database (slot-value (slot-value doc 'database) 'name)))

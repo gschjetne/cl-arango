@@ -59,7 +59,7 @@
    "Returns the document identified by HANDLE.")
   (:uri `("document" ,handle)))
 
-(def-arango-fun create-document (document collection &optional
+(def-arango-fun create-document (document collection &key
                                           create-collection wait-for-sync)
   :post
   (:documentation "Creates a new document in the collection named COLLECTION.")
@@ -69,7 +69,7 @@
                 "waitForSync" wait-for-sync))
   (:content document))
 
-(def-arango-fun replace-document (document handle &optional
+(def-arango-fun replace-document (document handle &key
                                            wait-for-sync rev policy)
   :put
   (:documentation
@@ -80,7 +80,7 @@
                   (if policy `("policy" ,policy))))
   (:content document))
 
-(def-arango-fun patch-document (document handle &optional
+(def-arango-fun patch-document (document handle &key
                                          keep-null wait-for-sync rev policy)
   :patch
   (:documentation "Partially updates the document identified by HANDLE.")
@@ -90,7 +90,7 @@
                   (if policy `("policy" ,policy))))
   (:content document))
 
-(def-arango-fun delete-document (handle &optional wait-for-sync rev policy)
+(def-arango-fun delete-document (handle &key wait-for-sync rev policy)
   :delete
   (:documentation "Deletes a document.")
   (:uri `("document" ,handle))
@@ -99,7 +99,7 @@
                   (if policy `("policy" ,policy)))))
 
 ;; This function always fails. Custom response handler is needed
-(def-arango-fun read-document-header (handle &optional rev)
+(def-arango-fun read-document-header (handle &key rev)
   :head
   (:documentation
    "Like READ-DOCUMENT, but only returns the header fields and not the body.")
@@ -131,7 +131,7 @@
   (:query `("collection" ,collection)))
 
 (def-arango-fun create-edge (document collection from-handle to-handle
-                                      &optional create-collection wait-for-sync)
+                                      &key create-collection wait-for-sync)
   :post
   (:documentation "Creates a new edge document in the collection named COLLECTION")
   (:uri '("edge"))
@@ -142,7 +142,7 @@
                 "waitForSync" wait-for-sync))
   (:content document))
 
-(def-arango-fun patch-edge (document handle &optional
+(def-arango-fun patch-edge (document handle &key
                                      keep-null wait-for-sync rev policy)
   :patch
   (:documentation "Partially updates the edge document identified by HANDLE.")
@@ -152,7 +152,7 @@
                   (if policy `("policy" ,policy))))
   (:content document))
 
-(def-arango-fun replace-edge (document handle &optional
+(def-arango-fun replace-edge (document handle &key
                                        wait-for-sync rev policy)
   :put
   (:documentation
@@ -163,7 +163,7 @@
                   (if policy `("policy" ,policy))))
   (:content document))
 
-(def-arango-fun delete-edge (handle &optional wait-for-sync rev policy)
+(def-arango-fun delete-edge (handle &key wait-for-sync rev policy)
   :delete
   (:documentation "Deletes an edge.")
   (:uri `("edge" ,handle))
@@ -172,14 +172,14 @@
                   (if policy `("policy" ,policy)))))
 
 ;; This function always fails. Custom response handler is needed
-(def-arango-fun read-edge-header (handle &optional rev)
+(def-arango-fun read-edge-header (handle &key rev)
   :head
   (:documentation
    "Like READ-EDGE, but only returns the header fields and not the body.")
   (:uri `("document" ,handle))
   (:query (if rev `("rev" rev))))
 
-(def-arango-fun read-in-or-outbound-edges (collection vertex &optional direction)
+(def-arango-fun read-in-or-outbound-edges (collection vertex &key direction)
   :get
   (:documentation
    "Returns the list of edges starting or ending in the vertex
@@ -195,7 +195,7 @@
 
 ;; Simple queries
 
-(def-arango-fun simple-return-all (collection &optional skip limit)
+(def-arango-fun simple-return-all (collection &key skip limit)
   :put
   (:documentation "Returns all documents of a collection.")
   (:uri '("simple" "all"))
@@ -203,7 +203,7 @@
                                      ,(if skip `("skip" . ,skip))
                                      ,(if limit `("limit" . ,limit)))))))
 
-(def-arango-fun simple-by-example (example collection &optional skip limit)
+(def-arango-fun simple-by-example (example collection &key skip limit)
   :put
   (:documentation "Finds all documents matching the example given by EXAMPLE.")
   (:uri '("simple" "by-example"))
@@ -220,7 +220,7 @@
                    ("example" . ,example))))
 
 (def-arango-fun simple-by-example-hash (example collection index
-                                                &optional skip limit)
+                                                &key skip limit)
   :put
   (:documentation "Finds all documents matching the example given by EXAMPLE.")
   (:uri '("simple" "by-example"))
@@ -231,7 +231,7 @@
                                      ,(if limit `("limit" . ,limit)))))))
 
 (def-arango-fun simple-by-example-skiplist (example collection index
-                                                    &optional skip limit)
+                                                    &key skip limit)
   :put
   (:documentation "Finds all documents matching the example given by EXAMPLE.")
   (:uri '("simple" "by-example-skiplist"))
@@ -242,7 +242,7 @@
                                      ,(if limit `("limit" . ,limit)))))))
 
 (def-arango-fun simple-by-example-bitarray (example collection index
-                                                    &optional skip limit)
+                                                    &key skip limit)
   :put
   (:documentation "Finds all documents matching the example given by EXAMPLE.")
   (:uri '("simple" "by-example-bitarray"))
@@ -253,7 +253,7 @@
                                      ,(if limit `("limit" . ,limit)))))))
 
 (def-arango-fun simple-by-condition-bitarray (condition collection index
-                                                        &optional skip limit)
+                                                        &key skip limit)
   :put
   (:documentation "Finds all documents matching the example given by EXAMPLE.")
   (:uri '("simple" "by-condition-bitarray"))
@@ -270,7 +270,7 @@
   (:content `(:obj ("collection" . ,collection))))
 
 (def-arango-fun simple-range (collection attribute left right
-                                         &optional closed skip limit)
+                                         &key closed skip limit)
   :put
   (:documentation
    "This will find all documents within a given range. In order to
@@ -286,7 +286,7 @@
                                      ,(if limit `("limit" . ,limit)))))))
 
 (def-arango-fun simple-near (collection latitude longitude
-                                        &optional distance geo skip limit)
+                                        &key distance geo skip limit)
   :put
   (:documentation
    "The default will find at most 100 documents near the given
@@ -302,7 +302,7 @@
                                      ,(if limit `("limit" . ,limit)))))))
 
 (def-arango-fun simple-within (collection latitude longitude radius
-                                          &optional distance geo skip limit)
+                                          &key distance geo skip limit)
   :put
   (:documentation
    "This will find all documents within a given radius around the
@@ -319,7 +319,7 @@
                                      ,(if limit `("limit" . ,limit)))))))
 
 (def-arango-fun simple-fulltext (collection attribute query index
-                                            &optional skip limit)
+                                            &key skip limit)
   :put
   (:documentation
    "This will find all documents from the collection that match the
@@ -333,7 +333,7 @@
                                         ,(if limit `("limit" . ,limit)))))))
 
 (def-arango-fun simple-remove-by-example (example collection
-                                                  &optional wait-for-sync limit)
+                                                  &key wait-for-sync limit)
   :put
   (:documentation
    "Finds and removes all documents matching the example given by EXAMPLE.")
@@ -349,7 +349,7 @@
                                               `("limit" . ,limit))))))))
 
 (def-arango-fun simple-replace-by-example (example collection replacement
-                                                  &optional wait-for-sync limit)
+                                                  &key wait-for-sync limit)
   :put
   (:documentation
    "Finds and replaces all documents matching EXAMPLE by REPLACEMENT.")
@@ -366,7 +366,7 @@
                                                     `("limit" . ,limit)))))))))
 
 (def-arango-fun simple-update-by-example (example collection replacement
-                                                  &optional keep-null wait-for-sync limit)
+                                                  &key keep-null wait-for-sync limit)
   :put
   (:documentation
    "Finds all documents matching EXAMPLE and partially updates them
@@ -385,7 +385,7 @@
                                           (if limit
                                               `("limit" . ,limit))))))))
 
-(def-arango-fun simple-first (collection &optional (count 1))
+(def-arango-fun simple-first (collection &key (count 1))
   :put
   (:documentation
    "Returns the first document(s) from COLLECTION, in the order of
@@ -396,7 +396,7 @@
   (:content `(:obj ("collection" . ,collection)
                    ("count" . ,count))))
 
-(def-arango-fun simple-last (collection &optional (count 1))
+(def-arango-fun simple-last (collection &key (count 1))
   :put
   (:documentation
    "Returns the last document(s) from COLLECTION, in the order of
@@ -410,7 +410,7 @@
 
 ;; Collections
 
-(defun key-options (type allow-user-keys &optional increment offset)
+(defun key-options (type allow-user-keys &key increment offset)
   "Constructs a hash table of key options suitable for passing to CREATE-COLLECTION"
   (cons :obj (remove nil
                      (append
@@ -423,7 +423,7 @@
                                                `("offset" . ,offset)))))
                       `(("allowUserKeys" . ,(t-or-f allow-user-keys)))))))
 
-(def-arango-fun create-collection (name &optional wait-for-sync do-compact
+(def-arango-fun create-collection (name &key wait-for-sync do-compact
                                         journal-size is-system is-volatile
                                         key-options (type :document) number-of-shards
                                         (shard-keys '("_key")))
@@ -494,7 +494,7 @@
   (:documentation "Return all collections")
   (:uri '("collection")))
 
-(def-arango-fun load-collection (name &optional count)
+(def-arango-fun load-collection (name &key count)
   :put
   (:documentation
    "Loads a collection into memory. If COUNT is set to T, number of
@@ -546,17 +546,17 @@
   (:query `("collection" ,collection))
   (:content details))
 
-(defun cap-constraint (&optional size byte-size)
+(defun cap-constraint (&key size byte-size)
   `(:obj ("type" . "cap")
          ("size" . ,size)
          ("byteSize" . ,byte-size)))
 
-(defun hash-index (fields &optional unique)
+(defun hash-index (fields &key unique)
   `(:obj ("type" . "hash")
          ("fields" . ,fields)
          ("unique" . ,(t-or-jsf unique))))
 
-(defun skip-list (fields &optional unique)
+(defun skip-list (fields &key unique)
   `(:obj ("type" . "skiplist")
          ("fields" . ,fields)
          ("unique" . ,(t-or-jsf unique))))
@@ -601,7 +601,7 @@
 
 ;; User Management
 
-(defun database-user (username &optional password (active t) extra)
+(defun database-user (username &key password (active t) extra)
   "Constructs a list defining a user, suitable for passing to
 CREATE-DATABASE and CREATE-USER."
   (cons :obj (remove nil `(("username" . ,username)
@@ -609,7 +609,7 @@ CREATE-DATABASE and CREATE-USER."
                            ,(if password `("passwd" . ,password))
                            ,(if extra `("extra" . ,extra))))))
 
-(def-arango-fun create-user (database-user &optional change-password)
+(def-arango-fun create-user (database-user &key change-password)
   :post
   (:documentation "")
   (:uri '("user"))
@@ -617,7 +617,7 @@ CREATE-DATABASE and CREATE-USER."
                     `(("changePassword" . ,(t-or-jsf change-password))))))
 
 (defmacro replace-or-update-user (name method documentation)
-  `(def-arango-fun ,name (username password &optional
+  `(def-arango-fun ,name (username password &key
                                    (active t) extra change-password)
      ,method
      (:documentation ,documentation)
