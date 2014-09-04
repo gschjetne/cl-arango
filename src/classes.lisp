@@ -2,29 +2,31 @@
 
 (defun connect (&key (host *arango-host*) (port *arango-port*))
   (with-endpoint (host port)
-    (list-accessible-databases)))
+    (let ((database-names (jsown:val (list-accessible-databases) "result")))
+      (apply #'values
+             (mapcar (lambda (name)
+                       (make-instance 'database :name name))
+                     database-names)))))
 
-(defclass arango-object ()
-  ((properties :initform (make-hash-table))))
-
-(defclass database (arango-object)
+(defclass database ()
   ((name :initarg :name)))
 
 (defclass system-database (database))
 
-(defclass document (arango-object)
+(defclass document ()
   ((database :initform *system-database*)))
 
-(defclass edge (arango-object))
+(defclass edge ())
 
-(defclass collection (arango-object))
+(defclass collection ())
 
-(defclass index (arango-object))
+(defclass index ())
 
-(defclass user (arango-object))
+(defclass user ())
 
-(defclass endpoint (arango-object)
-  ((databases)))
+(defgeneric )
+
+;; Deletion
 
 (defgeneric delete-object (object)
   (:documentation "Removes the given OBJECT from the database"))

@@ -27,15 +27,18 @@
 (defvar *password* nil)
 
 (defmacro with-endpoint ((host port) &body body)
+  "Select the host and port to connect to"
   `(let ((*arango-host* ,host)
          (*arango-port* ,port))
      ,@body))
 
-(defmacro with-database ((name) &body body)
+(defmacro with-database (name &body body)
+  "Select the database NAME in which to do the operations in"
   `(let ((*arango-database* ,name))
      ,@body))
 
 (defmacro with-user ((username password) &body body)
+  "Authenticate with USERNAME and PASSWORD"
   `(let ((*username* ,username)
          (*password* ,password))
      ,@body))
