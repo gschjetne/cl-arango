@@ -192,6 +192,54 @@
 
 ;; AQL queries
 
+(def-arango-fun create-cursor (query)
+  :post
+  (:documentation "Create a cursor and return the first results")
+  (:uri '("cursor"))
+  (:content query))
+
+(def-arango-fun read-cursor (cursor-id)
+  :put
+  (:documentation "Return the next results from an existing cursor")
+  (:uri `("cursor" ,cursor-id)))
+
+(def-arango-fun delete-cursor (cursor-id)
+  :delete
+  (:documentation "Deletes the cursor and frees the resources associated with it.")
+  (:uri `("cursor" ,cursor-id)))
+
+(def-arango-fun parse-query (query)
+  :post
+  (:documentation "Parse a query and return information about it")
+  (:uri '("query"))
+  (:content query))
+
+(def-arango-fun explain-query (query)
+  :post
+  (:documentation "Explain a query and return information about it")
+  (:uri '("explain"))
+  (:content query))
+
+(def-arango-fun create-user-fun (name code &key is-deterministic)
+  :post
+  (:documentation "Create a new AQL user function")
+  (:uri '("aqlfunction"))
+  (:content (cons :obj (remove nil `(("name" ,name)
+                                     ("code" ,code)
+                                     ,(if is-deterministic
+                                          '("is-deterministic" t)))))))
+
+(def-arango-fun delete-user-fun (name)
+  :delete
+  (:documentation "Remove an existing AQL user function")
+  (:uri `("aqlfunction" ,name)))
+
+(def-arango-fun list-user-funs ()
+  :get
+  (:documentation "Gets all reqistered AQL user functions")
+  (:uri '("aqlfunction")))
+
+
 
 ;; Simple queries
 
