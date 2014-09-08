@@ -35,4 +35,5 @@
             :components
             ((:file "package")
              (:file "requests" :depends-on ("package"))
-             (:file "rest" :depends-on ("requests"))))))
+             (:file "rest" :depends-on ("requests"))
+             (:file "classes" :depends-on ("rest"))))))
