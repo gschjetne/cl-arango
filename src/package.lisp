@@ -49,6 +49,15 @@
            #:read-document-header
            #:read-in-or-outbound-edges
 
+           #:create-cursor
+           #:read-cursor
+           #:delete-cursor
+           #:parse-query
+           #:explain-query
+           #:create-user-fun
+           #:delete-user-fun
+           #:list-user-funs
+
            #:simple-return-all
            #:simple-by-example
            #:simple-first-example
