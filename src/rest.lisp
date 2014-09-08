@@ -192,6 +192,16 @@
 
 ;; AQL queries
 
+(defun aql-query (query-string &key count-results batch-size
+                                 time-to-live bind-parameters full-count)
+  (cons :obj (remove nil `(("query" . ,query-string)
+                           ,(if count-results '("count" . t))
+                           ,(if batch-size `("batchSize" . ,batch-size))
+                           ,(if time-to-live `("ttl" . ,time-to-live))
+                           ,(if bind-parameters `("bindVars" . ,bind-parameters))
+                           ,(if full-count
+                                '("options" (:obj ("fullCount" . t))))))))
+
 (def-arango-fun create-cursor (query)
   :post
   (:documentation "Create a cursor and return the first results")
