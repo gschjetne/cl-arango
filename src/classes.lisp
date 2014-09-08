@@ -1,5 +1,14 @@
 (in-package #:arango)
 
+;; Generic functions
+
+(defgeneric delete-object (object)
+  (:documentation "Removes the given OBJECT from the database"))
+
+(defgeneric get-server (object))
+
+;; Server management
+
 (defclass server ()
   ((host :initarg :host :initform *arango-host*)
    (port :initarg :port :initform *arango-port*)
@@ -13,7 +22,10 @@
                  (slot-value ,server 'password))
        ,@body)))
 
-(defgeneric get-database-names (server))
+;; Database management
+
+(defgeneric get-database-names (server)
+  (:documentation "Get a list of databases by name from SERVER"))
 
 (defmethod get-database-names ((server server))
   (with-server server
@@ -49,7 +61,9 @@
   ((name :initarg :name)
    (server :initarg :server)))
 
-(defgeneric get-server (object))
+(defmacro with-db (database &body body)
+  `(with-server (get-server ,database)
+    ,@body))
 
 (defmethod get-server ((object database))
   (slot-value object 'server))
@@ -57,13 +71,24 @@
 (defclass user ()
   ((name :initarg :name)))
 
-
-
-;; Deletion
-
-(defgeneric delete-object (object)
-  (:documentation "Removes the given OBJECT from the database"))
-
 (defmethod delete-object ((object database))
-  (with-server (get-server object)
+  (with-db object
     (drop-database (slot-value object 'name))))
+
+;; Collection management
+
+(defgeneric new-collection ((database)))
+
+(defclass collection ()
+    ((name :initarg :name)
+     (database :initarg :database)))
+
+(defmethod delete-object ((object 'collection))
+  (with-db (slot-value object 'database)
+    (delete-collection (slot-value object 'name))))
+
+(defgeneric clear-collection (collection))
+
+(defmethod clear-collection ((collection collection))
+  (with-db (slot-value collection 'database)
+    (truncate-collection (slot-value collection 'name))))
