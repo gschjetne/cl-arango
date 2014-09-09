@@ -198,7 +198,8 @@
                            ,(if count-results '("count" . t))
                            ,(if batch-size `("batchSize" . ,batch-size))
                            ,(if time-to-live `("ttl" . ,time-to-live))
-                           ,(if bind-parameters `("bindVars" . ,bind-parameters))
+                           ,(if bind-parameters
+                                `("bindVars" . (:obj ,@bind-parameters)))
                            ,(if full-count
                                 '("options" (:obj ("fullCount" . t))))))))
 
@@ -646,7 +647,25 @@
 
 ;; General Graph
 
+(def-arango-fun create-graph (name edge-definitions)
+  :post
+  (:documentation "Create a new graph")
+  (:uri '("gharial"))
+  (:content `(:obj ("name" . ,name)
+                   ("edgeDefinitions" . ,edge-definitions))))
+
 ;; Traversals
+
+(def-arango-fun traverse (start-vertex graph-name
+                                       &key filter min-depth max-depth
+                                       visitor direction init expander
+                                       sort strategy order item-order
+                                       uniqueness max-iterations)
+  :post
+  (:documentation "Starts a traversal starting from a given vertex")
+  (:uri '("traversal"))
+  (:content `(:obj ("startVertex" . ,start-vertex)
+                   ("graphName" . ,graph-name))))
 
 ;; Replication
 

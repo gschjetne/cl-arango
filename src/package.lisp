@@ -49,6 +49,7 @@
            #:read-document-header
            #:read-in-or-outbound-edges
 
+           #:aql-query
            #:create-cursor
            #:read-cursor
            #:delete-cursor
@@ -101,6 +102,10 @@
            #:full-text
            #:delete-index
            #:read-all-indexes
+
+           #:create-graph
+
+           #:traverse
 
            #:database-user
            #:create-user
