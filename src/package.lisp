@@ -122,6 +122,8 @@
            #:with-database
            #:with-user
 
+           #:t-or-jsf
+
            #:*arango-host*
            #:*arango-port*
            #:*arango-database*
