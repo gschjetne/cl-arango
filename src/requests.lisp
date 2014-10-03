@@ -121,8 +121,5 @@
 
 ;; Utility functions
 
-(defun t-or-f (x)
-  (if x "true" "false"))
-
 (defun t-or-jsf (x)
   (if x t :f))

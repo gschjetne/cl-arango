@@ -339,7 +339,7 @@
   (:content (cons :obj (remove nil `(("attribute" . ,attribute)
                                      ("left" . ,left)
                                      ("right" . ,right)
-                                     ("closed" . ,(t-or-f closed))
+                                     ("closed" . ,(t-or-jsf closed))
                                      ("collection" . ,collection)
                                      ,(if skip `("skip" . ,skip))
                                      ,(if limit `("limit" . ,limit)))))))
@@ -480,7 +480,7 @@
                                                `("increment" . ,increment))
                                           ,(if offset
                                                `("offset" . ,offset)))))
-                      `(("allowUserKeys" . ,(t-or-f allow-user-keys)))))))
+                      `(("allowUserKeys" . ,(t-or-jsf allow-user-keys)))))))
 
 (def-arango-fun create-collection (name &key wait-for-sync do-compact
                                         journal-size is-system is-volatile
