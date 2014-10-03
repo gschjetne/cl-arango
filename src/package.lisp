@@ -16,8 +16,6 @@
 ;; License along with CL-Arango.  If not, see
 ;; <http://www.gnu.org/licenses/>.
 
-
-
 (in-package #:cl-user)
 
 (defpackage #:cl-arango-rest
@@ -129,9 +127,3 @@
            #:*arango-database*
            #:*username*
            #:*password*))
-
-(defpackage #:arango
-  (:use #:cl
-        #:alexandria
-        #:anaphora
-        #:cl-arango-rest))
