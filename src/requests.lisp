@@ -16,7 +16,7 @@
 ;; License along with CL-Arango.  If not, see
 ;; <http://www.gnu.org/licenses/>.
 
-(in-package :cl-arango-rest)
+(in-package #:cl-arango-rest)
 
 ;; Settings
 
@@ -98,12 +98,26 @@
            (result (if (search "application/json" content-type)
                        (jsown:parse (flexi-streams:octets-to-string body
                                                                     :external-format :utf-8)))))
-      (if (and (>= status 200) (< status 300))
-          result
-          (error (format nil "ArangoDB Error ~D/~D: \"~A\""
-                         (cdr (assoc "code" (cdr result) :test #'equal))
-                         (cdr (assoc "errorNum" (cdr result) :test #'equal))
-                         (cdr (assoc "errorMessage" (cdr result) :test #'equal))))))))
+      (if (jsown:val result "error")
+          (restart-case
+              (error 'arango-error
+                     :http-status status
+                     :error-number (jsown:val result "errorNum")
+                     :error-message (jsown:val result "errorMessage"))
+            (return-result () result))
+          result))))
+
+;; Conditions
+
+(define-condition arango-error (error)
+  ((http-status :initarg :http-status :reader http-status)
+   (error-number :initarg :error-number :reader error-number)
+   (error-message :initarg :error-message :reader error-message))
+  (:report (lambda (condition stream)
+             (format stream "ArangoDB failed with status ~D/~D: ~A"
+                     (http-status condition)
+                     (error-number condition)
+                     (error-message condition)))))
 
 ;; Utility functions
 
