@@ -121,6 +121,7 @@
            #:with-user
 
            #:t-or-jsf
+           #:t-or-jsf-p
 
            #:*arango-host*
            #:*arango-port*

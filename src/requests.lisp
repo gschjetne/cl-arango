@@ -98,7 +98,7 @@
            (result (if (search "application/json" content-type)
                        (jsown:parse (flexi-streams:octets-to-string body
                                                                     :external-format :utf-8)))))
-      (if (jsown:val result "error")
+      (if (and (jsown:keyp result "error") (t-or-jsf-p (jsown:val result "error")))
           (restart-case
               (error 'arango-error
                      :http-status status
@@ -123,3 +123,7 @@
 
 (defun t-or-jsf (x)
   (if x t :f))
+
+(defun t-or-jsf-p (x)
+  (when (not (or (eq x :f)
+                 (eq x :false))) x))
