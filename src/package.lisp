@@ -123,6 +123,11 @@
            #:t-or-jsf
            #:t-or-jsf-p
 
+           #:arango-error
+           #:http-status
+           #:error-number
+           #:error-message
+
            #:*arango-host*
            #:*arango-port*
            #:*arango-database*
