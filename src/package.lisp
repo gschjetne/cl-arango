@@ -131,5 +131,6 @@
            #:*arango-host*
            #:*arango-port*
            #:*arango-database*
+           #:*parse-result*
            #:*username*
            #:*password*))

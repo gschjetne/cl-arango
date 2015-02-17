@@ -25,6 +25,7 @@
 (defvar *arango-database* "_system")
 (defvar *username* nil)
 (defvar *password* nil)
+(defvar *parse-result* t)
 
 (defmacro with-endpoint ((host port) &body body)
   "Select the host and port to connect to"
@@ -95,17 +96,18 @@
                                              (list username password)))
     
     (let* ((content-type (cdr (assoc :content-type header)))
+           (body-string (flexi-streams:octets-to-string body
+                                                        :external-format :utf-8))
            (result (if (search "application/json" content-type)
-                       (jsown:parse (flexi-streams:octets-to-string body
-                                                                    :external-format :utf-8)))))
+                       (jsown:parse body-string))))
       (if (and (jsown:keyp result "error") (t-or-jsf-p (jsown:val result "error")))
           (restart-case
               (error 'arango-error
                      :http-status status
                      :error-number (jsown:val result "errorNum")
                      :error-message (jsown:val result "errorMessage"))
-            (return-result () result))
-          result))))
+            (return-result () (if *parse-result* result body-string)))
+          (if *parse-result* result body-string)))))
 
 ;; Conditions
 
