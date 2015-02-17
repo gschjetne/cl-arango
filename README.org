@@ -1,12 +1,7 @@
 * CL-Arango
   A client library for the ArangoDB REST API.
 
-  It is very incomplete at this point.
-
-** To do
-   - Rest of the HTTP API
-   - Tests
-   - Documentation
+  It is uncertain if I end up using this for a project.
 
 ** License
    This program is free software: you can redistribute it and/or modify
