@@ -86,7 +86,7 @@
                                   (plist-alist query))))))
 
 (defun send-request (&key method uri content username password)
-  (multiple-value-bind (body status header)
+  (multiple-value-bind (body status header uri stream must-close)
       (http-request uri
                     :method method
                     :content content
@@ -94,7 +94,8 @@
                     :content-type "application/json; charset=utf-8"
                     :basic-authorization (if (and username password)
                                              (list username password)))
-    
+    (declare (ignore uri))
+    (unless must-close (close stream))
     (let* ((content-type (cdr (assoc :content-type header)))
            (body-string (flexi-streams:octets-to-string body
                                                         :external-format :utf-8))
